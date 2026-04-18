@@ -52,12 +52,17 @@ export default function SettingsPage() {
             setIsUnlocked(unlocked);
         });
 
-        getCurrentUser().then(u => {
-            setUser(u);
-            if (u?.$id) {
-                loadPasskeys(u.$id);
+        (async () => {
+            try {
+                const u = await getCurrentUser();
+                setUser(u);
+                if (u?.$id) {
+                    loadPasskeys(u.$id);
+                }
+            } catch (_error: unknown) {
+                setUser(null);
             }
-        });
+        })();
 
         return () => unsubscribe();
     }, []);
