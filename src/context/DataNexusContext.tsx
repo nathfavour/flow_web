@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useRef, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useRef, useCallback } from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * KYLRIX FLOW DATA NEXUS
