@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FormsFormIdRouteImport } from './routes/forms.$formId'
 import { Route as FormIdRouteImport } from './routes/form.$id'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
+import { Route as ApiAiGenerateRouteRouteImport } from './routes/api/ai/generate/route'
 
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
@@ -70,6 +71,11 @@ const EventsEventIdRoute = EventsEventIdRouteImport.update({
   path: '/$eventId',
   getParentRoute: () => EventsRoute,
 } as any)
+const ApiAiGenerateRouteRoute = ApiAiGenerateRouteRouteImport.update({
+  id: '/api/ai/generate',
+  path: '/api/ai/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof EventsEventIdRoute
   '/form/$id': typeof FormIdRoute
   '/forms/$formId': typeof FormsFormIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/events/$eventId': typeof EventsEventIdRoute
   '/form/$id': typeof FormIdRoute
   '/forms/$formId': typeof FormsFormIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/events/$eventId': typeof EventsEventIdRoute
   '/form/$id': typeof FormIdRoute
   '/forms/$formId': typeof FormsFormIdRoute
+  '/api/ai/generate': typeof ApiAiGenerateRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/form/$id'
     | '/forms/$formId'
+    | '/api/ai/generate'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/form/$id'
     | '/forms/$formId'
+    | '/api/ai/generate'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/form/$id'
     | '/forms/$formId'
+    | '/api/ai/generate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   TasksRoute: typeof TasksRoute
   FormIdRoute: typeof FormIdRoute
+  ApiAiGenerateRouteRoute: typeof ApiAiGenerateRouteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof EventsRoute
     }
+    '/api/ai/generate': {
+      id: '/api/ai/generate'
+      path: '/api/ai/generate'
+      fullPath: '/api/ai/generate'
+      preLoaderRoute: typeof ApiAiGenerateRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   TasksRoute: TasksRoute,
   FormIdRoute: FormIdRoute,
+  ApiAiGenerateRouteRoute: ApiAiGenerateRouteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

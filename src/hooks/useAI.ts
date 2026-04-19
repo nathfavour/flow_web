@@ -1,6 +1,7 @@
 'use client';
 
 import { useSettings } from './useSettings';
+import { generateAIResponse } from '@/lib/server/api';
 
 export interface AIChatMessage {
   role: 'user' | 'assistant';
@@ -14,30 +15,14 @@ export const useAI = () => {
     history?: AIChatMessage[], 
     systemInstruction?: string 
   } = {}) => {
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    
-    // Client-side injection of user key if they have one
-    if (userSettings.customGeminiKey) {
-      headers["x-user-gemini-key"] = userSettings.customGeminiKey;
-    }
-
-    const response = await fetch("/api/ai/generate", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ 
-        prompt, 
+    return await generateAIResponse({
+      data: {
+        prompt,
         history: options.history,
-        systemInstruction: options.systemInstruction 
-      }),
+        systemInstruction: options.systemInstruction,
+        apiKey: userSettings.customGeminiKey || undefined,
+      },
     });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "AI Generation failed");
-    }
-    
-    const data = await response.json();
-    return data.text as string;
   };
 
   return { generate };
