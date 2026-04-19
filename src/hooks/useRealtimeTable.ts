@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Models } from 'appwrite';
+import type { Models } from 'appwrite';
 import { subscribeToTable } from '../lib/kylrixflow';
 
 export function useRealtimeTable<T extends Models.Row>(
