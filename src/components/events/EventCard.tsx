@@ -18,7 +18,7 @@ import {
   Users,
   MoreVertical,
 } from 'lucide-react';
-import { Event } from '@/types';
+import type { Event } from '@/types';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { generateEventPattern as generatePattern } from '@/utils/patternGenerator';
 import { useState } from 'react';

@@ -32,7 +32,7 @@ import {
   AutoFixHigh as AutoFixHighIcon,
 } from '@mui/icons-material';
 import { useTask } from '@/context/TaskContext';
-import { Task } from '@/types';
+import type { Task } from '@/types';
 import { focusSessions } from '@/lib/kylrixflow';
 import { useAI } from '@/hooks/useAI';
 import { tablesDB } from '@/lib/appwrite/client';

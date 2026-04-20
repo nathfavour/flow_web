@@ -39,7 +39,7 @@ import {
 import { format } from 'date-fns';
 import { Query } from 'appwrite';
 import { useTask } from '@/context/TaskContext';
-import { Priority, TaskStatus } from '@/types';
+import type { Priority, TaskStatus } from '@/types';
 import { useLayout } from '@/context/LayoutContext';
 import { useAI } from '@/hooks/useAI';
 import { useMediaQuery } from '@mui/material';

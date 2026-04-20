@@ -31,7 +31,7 @@ import {
 } from 'date-fns';
 import { useTask } from '@/context/TaskContext';
 import { useLayout } from '@/context/LayoutContext';
-import { Task, Priority } from '@/types';
+import type { Task, Priority } from '@/types';
 
 const priorityColors: Record<Priority, string> = {
   low: '#94a3b8',
@@ -402,5 +402,4 @@ export default function CalendarView() {
     </Box>
   );
 }
-
 

@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { format, isToday, isTomorrow, isPast, isThisWeek } from 'date-fns';
-import { Task, Priority } from '@/types';
+import type { Task, Priority } from '@/types';
 import { useTask } from '@/context/TaskContext';
 import { useLayout } from '@/context/LayoutContext';
 

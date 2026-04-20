@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import UserSearch from '@/components/UserSearch';
 import { useTask } from '@/context/TaskContext';
-import { Priority, TaskStatus } from '@/types';
+import type { Priority, TaskStatus } from '@/types';
 
 interface User {
   id: string;

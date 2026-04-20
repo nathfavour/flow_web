@@ -27,7 +27,7 @@ import {
 import { useMediaQuery } from '@mui/material';
 import TaskItem from './TaskItem';
 import { useTask } from '@/context/TaskContext';
-import { ViewMode, SortField, TaskStatus } from '@/types';
+import type { ViewMode, SortField, TaskStatus } from '@/types';
 
 export default function TaskList() {
   const theme = useTheme();

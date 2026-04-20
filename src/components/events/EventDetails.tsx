@@ -24,7 +24,7 @@ import { useLayout } from '@/context/LayoutContext';
 import { events as eventApi } from '@/lib/kylrixflow';
 import { generateEventPattern } from '@/utils/patternGenerator';
 import type { Event as AppwriteEvent } from '@/types/kylrixflow';
-import { Event as LocalEvent } from '@/types';
+import type { Event as LocalEvent } from '@/types';
 
 interface EventDetailsProps {
   eventId: string;

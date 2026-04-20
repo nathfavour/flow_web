@@ -14,7 +14,7 @@ import Grid from '@mui/material/Grid';
 import { Add as AddIcon } from '@mui/icons-material';
 import EventCard from './EventCard';
 import EventDialog from './EventDialog';
-import { Event } from '@/types';
+import type { Event } from '@/types';
 import { events as eventApi } from '@/lib/kylrixflow';
 import { useTask } from '@/context/TaskContext';
 import { useLayout } from '@/context/LayoutContext';

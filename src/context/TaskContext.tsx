@@ -10,7 +10,7 @@ import { getEcosystemUrl } from '@/lib/constants';
 import type { Task as AppwriteTask, Calendar as AppwriteCalendar } from '@/types/kylrixflow';
 import { useDataNexus } from './DataNexusContext';
 import { sendKylrixEmailNotification } from '@/lib/email-notifications';
-import {
+import type {
   Task,
   Project,
   Label,
