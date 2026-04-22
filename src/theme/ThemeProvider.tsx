@@ -7,6 +7,7 @@ import { darkTheme } from '@/theme/theme';
 
 interface ThemeProviderProps {
   children: React.ReactNode;
+  isMobileHint?: boolean;
 }
 
 export const useThemeMode = () => {
@@ -17,7 +18,7 @@ export const useThemeMode = () => {
   };
 };
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children, isMobileHint = false }: ThemeProviderProps) {
   React.useEffect(() => {
     // Force dark mode class on html for any legacy tailwind or global styles
     document.documentElement.classList.add('dark');
@@ -25,7 +26,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, []);
 
   return (
-    <MuiThemeProvider theme={darkTheme}>
+    <MuiThemeProvider theme={darkTheme(isMobileHint)}>
       <CssBaseline />
       {children}
     </MuiThemeProvider>

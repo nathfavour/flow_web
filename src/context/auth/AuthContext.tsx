@@ -125,6 +125,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkSession = useCallback(async (retryCount = 0) => {
     console.log('[Auth] checkSession called', { retryCount });
     try {
+      const cachedUser = getCurrentUserSnapshot();
+      if (cachedUser?.$id) {
+        setUser(cachedUser);
+        setShowAuthOverlay(false);
+        setIsLoading(false);
+        return;
+      }
+
       const currentUser = await getCurrentUser();
       if (!currentUser?.$id) throw new Error('No active session');
       console.log('[Auth] account.get() success', currentUser.$id);
@@ -243,7 +251,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // First, check if we already have a session locally
     try {
-      const currentUser = await getCurrentUser(true);
+      const currentUser = getCurrentUserSnapshot() ?? await getCurrentUser(true);
       if (currentUser) {
         console.log('Active session detected in kylrixflow, skipping IDM window');
         setUser(currentUser);

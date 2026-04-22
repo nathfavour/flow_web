@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { AppProviders } from "@/providers";
 
@@ -40,6 +41,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const userAgent = headers().get('user-agent') || '';
+  const isMobileHint = /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent);
+
   return (
     <html lang="en" suppressHydrationWarning className={mono.variable}>
       <head>
@@ -49,7 +53,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AppProviders>
+        <AppProviders isMobileHint={isMobileHint}>
           {children}
         </AppProviders>
       </body>

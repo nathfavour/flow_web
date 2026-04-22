@@ -4,7 +4,7 @@ import React, { createContext, useContext, useReducer, useCallback, useEffect, u
 import type { ReactNode } from 'react';
 import { ID, Query } from 'appwrite';
 import { tasks as taskApi, calendars as calendarApi, taskCollaborators, subscribeToTable, buildTaskPermissions } from '@/lib/kylrixflow';
-import { getCurrentUser, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
+import { getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { getEcosystemUrl } from '@/lib/constants';
 import type { Task as AppwriteTask, Calendar as AppwriteCalendar } from '@/types/kylrixflow';
@@ -556,10 +556,6 @@ export function TaskProvider({ children }: TaskProviderProps) {
     };
 
     syncUser(getCurrentUserSnapshot());
-
-    void getCurrentUser()
-      .then((user) => syncUser(user))
-      .catch(() => syncUser(null));
 
     const unsubscribe = onCurrentUserChanged(syncUser);
     return () => {

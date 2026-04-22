@@ -1,12 +1,20 @@
-'use client';
-
 import { createTheme, alpha } from '@mui/material/styles';
 import type { ThemeOptions } from '@mui/material/styles';
 
 const SURFACE_BACKGROUND = '#000000';
 const SURFACE = '#161514';
 
-const getDesignTokens = (): ThemeOptions => ({
+const matchesMediaQuery = (query: string, isMobileHint: boolean) => {
+  const width = isMobileHint ? 390 : 1440;
+  const maxWidth = query.match(/max-width:\s*(\d+(?:\.\d+)?)px/i);
+  const minWidth = query.match(/min-width:\s*(\d+(?:\.\d+)?)px/i);
+
+  if (maxWidth) return width <= Number(maxWidth[1]);
+  if (minWidth) return width >= Number(minWidth[1]);
+  return false;
+};
+
+const getDesignTokens = (isMobileHint = false): ThemeOptions => ({
   palette: {
     mode: 'dark',
     primary: {
@@ -113,6 +121,13 @@ const getDesignTokens = (): ThemeOptions => ({
     ...Array(15).fill('0px 32px 64px rgba(0,0,0,0.8)')
   ] as any,
   components: {
+    MuiUseMediaQuery: {
+      defaultProps: {
+        ssrMatchMedia: (query: string) => ({
+          matches: matchesMediaQuery(query, isMobileHint),
+        }),
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
@@ -278,7 +293,7 @@ const getDesignTokens = (): ThemeOptions => ({
   },
 });
 
-export const darkTheme = createTheme(getDesignTokens());
+export const darkTheme = (isMobileHint = false) => createTheme(getDesignTokens(isMobileHint));
 export const lightTheme = darkTheme; // No light mode
 
 export default darkTheme;

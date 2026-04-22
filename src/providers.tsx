@@ -10,9 +10,9 @@ import { NotificationProvider } from '@/context/NotificationContext';
 import { LayoutProvider } from '@/context/LayoutContext';
 import { SudoProvider } from '@/context/SudoContext';
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function AppProviders({ children, isMobileHint = false }: { children: React.ReactNode; isMobileHint?: boolean }) {
   return (
-    <ThemeProvider>
+    <ThemeProvider isMobileHint={isMobileHint}>
       <DataNexusProvider>
         <SubscriptionProvider>
           <AuthProvider>

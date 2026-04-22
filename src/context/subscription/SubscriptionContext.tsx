@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { tablesDB, getCurrentUser, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
+import { tablesDB, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { Query } from 'appwrite';
 
@@ -19,7 +19,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
     const checkSubscription = async (currentUser?: any | null) => {
         try {
-            const user = currentUser ?? getCurrentUserSnapshot() ?? await getCurrentUser();
+            const user = currentUser ?? getCurrentUserSnapshot();
             if (!user?.$id) {
                 setSubscription(null);
                 return;
