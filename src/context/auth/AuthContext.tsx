@@ -12,7 +12,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Image from 'next/image';
 import { APP_CONFIG } from '@/lib/constants';
-import { getCurrentUser, invalidateCurrentUserCache } from '@/lib/appwrite/client';
+import { getCurrentUser, getCurrentUserSnapshot, invalidateCurrentUserCache } from '@/lib/appwrite/client';
 
 interface AuthState {
   user: Models.User<Models.Preferences> | null;
@@ -70,8 +70,8 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const pathname = usePathname();
-  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<Models.User<Models.Preferences> | null>(() => getCurrentUserSnapshot());
+  const [isLoading, setIsLoading] = useState(() => !getCurrentUserSnapshot());
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
   const [authWindow, setAuthWindow] = useState<Window | null>(null);

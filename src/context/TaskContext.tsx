@@ -1,10 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { ID, Query } from 'appwrite';
 import { tasks as taskApi, calendars as calendarApi, taskCollaborators, subscribeToTable, buildTaskPermissions } from '@/lib/kylrixflow';
-import { getCurrentUser } from '@/lib/appwrite/client';
+import { getCurrentUser, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { getEcosystemUrl } from '@/lib/constants';
 import type { Task as AppwriteTask, Calendar as AppwriteCalendar } from '@/types/kylrixflow';
@@ -223,7 +223,7 @@ const initialState: TaskState = {
   sidebarOpen: true,
   taskDialogOpen: false,
   searchQuery: '',
-  userId: null,
+  userId: getCurrentUserSnapshot()?.$id || 'guest',
 };
 
 // Actions
@@ -232,6 +232,7 @@ type TaskAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_DATA'; payload: { tasks: Task[]; projects: Project[] } }
   | { type: 'SET_USER'; payload: string }
+  | { type: 'RESET_SESSION' }
   | { type: 'ADD_TASK'; payload: Task }
   | { type: 'UPDATE_TASK'; payload: { id: string; updates: Partial<Task> } }
   | { type: 'DELETE_TASK'; payload: string }
@@ -277,6 +278,17 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
 
     case 'SET_USER':
       return { ...state, userId: action.payload };
+
+    case 'RESET_SESSION':
+      return {
+        ...state,
+        tasks: [],
+        projects: [],
+        selectedTaskId: null,
+        selectedProjectId: null,
+        isLoading: false,
+        userId: 'guest',
+      };
 
     case 'ADD_TASK':
       return { ...state, tasks: [...state.tasks, action.payload] };
@@ -532,26 +544,39 @@ interface TaskProviderProps {
 export function TaskProvider({ children }: TaskProviderProps) {
   const [state, dispatch] = useReducer(taskReducer, initialState);
   const { fetchOptimized, invalidate } = useDataNexus();
+  const fetchRevisionRef = useRef(0);
+
+  // Keep session state in sync with the shared current-user cache.
+  useEffect(() => {
+    let mounted = true;
+
+    const syncUser = (user: any | null) => {
+      if (!mounted) return;
+      dispatch({ type: 'SET_USER', payload: user?.$id || 'guest' });
+    };
+
+    syncUser(getCurrentUserSnapshot());
+
+    void getCurrentUser()
+      .then((user) => syncUser(user))
+      .catch(() => syncUser(null));
+
+    const unsubscribe = onCurrentUserChanged(syncUser);
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   // Initial Data Fetch
   useEffect(() => {
+    const userId = state.userId || 'guest';
+    const revision = ++fetchRevisionRef.current;
+
     const fetchData = async () => {
-      console.log('[TaskContext] fetchData triggered');
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        
-        // Get current user
-        let userId = 'guest';
-        try {
-          const user = await getCurrentUser();
-          console.log('[TaskContext] User found', user.$id);
-          userId = user.$id;
-          dispatch({ type: 'SET_USER', payload: userId });
-        } catch (error: unknown) {
-          console.warn('[TaskContext] Not logged in', error);
-        }
 
-        // Fetch tasks and calendars (Nexus Optimized)
         const [tasksList, calendarsList] = await Promise.all([
           fetchOptimized(`f_tasks_${userId}`, () => taskApi.list([
             Query.limit(1000),
@@ -564,18 +589,21 @@ export function TaskProvider({ children }: TaskProviderProps) {
           ]))
         ]);
 
+        if (revision !== fetchRevisionRef.current) return;
+
         const tasks = tasksList.rows.map(mapAppwriteTaskToTask);
         const projects = calendarsList.rows.map(mapAppwriteCalendarToProject);
 
         dispatch({ type: 'SET_DATA', payload: { tasks, projects } });
       } catch (error: unknown) {
+        if (revision !== fetchRevisionRef.current) return;
         console.error('Failed to fetch data', error);
         dispatch({ type: 'SET_ERROR', payload: 'Failed to load data' });
       }
     };
 
-    fetchData();
-  }, [fetchOptimized]);
+    void fetchData();
+  }, [fetchOptimized, state.userId]);
 
   // Realtime Subscriptions
   useEffect(() => {

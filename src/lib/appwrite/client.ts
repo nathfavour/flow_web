@@ -26,6 +26,7 @@ export { client };
 const CURRENT_USER_CACHE_KEY = 'kylrix_flow_current_user_v2';
 const CURRENT_USER_CACHE_TTL = 5 * 60 * 1000;
 const CURRENT_USER_REQUEST_TIMEOUT = 8000;
+const CURRENT_USER_EVENT = 'kylrix-flow-current-user-changed';
 
 type CachedCurrentUser = {
     user: any | null;
@@ -68,6 +69,9 @@ const writePersistentCurrentUserCache = (cache: CachedCurrentUser | null) => {
 const clearCurrentUserCache = () => {
     currentUserCache = null;
     writePersistentCurrentUserCache(null);
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(CURRENT_USER_EVENT, { detail: null }));
+    }
 };
 
 const getCachedCurrentUser = () => {
@@ -82,6 +86,9 @@ const setCachedCurrentUser = (user: any | null) => {
     const cache: CachedCurrentUser = { user, expiresAt: Date.now() + CURRENT_USER_CACHE_TTL };
     currentUserCache = cache;
     writePersistentCurrentUserCache(cache);
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent(CURRENT_USER_EVENT, { detail: user }));
+    }
     return user;
 };
 
@@ -260,6 +267,25 @@ export async function getCurrentUser(force = false): Promise<any | null> {
         });
 
     return currentUserInFlight;
+}
+
+export function getCurrentUserSnapshot(): any | null {
+    if (currentUserCache && currentUserCache.expiresAt > Date.now()) {
+        return currentUserCache.user;
+    }
+    const persistent = readPersistentCurrentUserCache();
+    if (!persistent) return null;
+    currentUserCache = persistent;
+    return persistent.user;
+}
+
+export function onCurrentUserChanged(listener: (user: any | null) => void) {
+    if (typeof window === 'undefined') return () => {};
+    const handle = (event: Event) => {
+        listener((event as CustomEvent<any | null>).detail ?? null);
+    };
+    window.addEventListener(CURRENT_USER_EVENT, handle);
+    return () => window.removeEventListener(CURRENT_USER_EVENT, handle);
 }
 
 export function invalidateCurrentUserCache() {
