@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { tablesDB, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { Query } from 'appwrite';
+import { useAuth } from '@/context/auth/AuthContext';
 
 interface SubscriptionContextType {
     subscription: any;
@@ -14,8 +15,9 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
+    const { user: authUser } = useAuth();
     const [subscription, setSubscription] = useState<any>(null);
-    const [loading, setLoading] = useState(() => !getCurrentUserSnapshot());
+    const [loading, setLoading] = useState(() => !getCurrentUserSnapshot() && !authUser);
 
     const checkSubscription = async (currentUser?: any | null) => {
         try {
@@ -39,12 +41,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     };
 
     useEffect(() => {
-        void checkSubscription(getCurrentUserSnapshot());
+        void checkSubscription(authUser ?? getCurrentUserSnapshot());
         const unsubscribe = onCurrentUserChanged((user) => {
             void checkSubscription(user);
         });
         return unsubscribe;
-    }, []);
+    }, [authUser?.$id]);
 
     return (
         <SubscriptionContext.Provider value={{ subscription, loading, refresh: checkSubscription }}>

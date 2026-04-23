@@ -16,8 +16,8 @@ export function AppProviders({ children, isMobileHint = false }: { children: Rea
     <ViewportProvider isMobileHint={isMobileHint}>
       <ThemeProvider isMobileHint={isMobileHint}>
         <DataNexusProvider>
-          <SubscriptionProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <SubscriptionProvider>
               <TaskProvider>
                 <NotificationProvider>
                   <LayoutProvider>
@@ -25,8 +25,8 @@ export function AppProviders({ children, isMobileHint = false }: { children: Rea
                   </LayoutProvider>
                 </NotificationProvider>
               </TaskProvider>
-            </AuthProvider>
-          </SubscriptionProvider>
+            </SubscriptionProvider>
+          </AuthProvider>
         </DataNexusProvider>
       </ThemeProvider>
     </ViewportProvider>

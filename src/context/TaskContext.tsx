@@ -4,11 +4,12 @@ import React, { createContext, useContext, useReducer, useCallback, useEffect, u
 import type { ReactNode } from 'react';
 import { ID, Query } from 'appwrite';
 import { tasks as taskApi, calendars as calendarApi, taskCollaborators, subscribeToTable, buildTaskPermissions } from '@/lib/kylrixflow';
-import { getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
+import { getCurrentUser, getCurrentUserSnapshot, onCurrentUserChanged } from '@/lib/appwrite/client';
 import { APPWRITE_CONFIG } from '@/lib/appwrite/config';
 import { getEcosystemUrl } from '@/lib/constants';
 import type { Task as AppwriteTask, Calendar as AppwriteCalendar } from '@/types/kylrixflow';
 import { useDataNexus } from './DataNexusContext';
+import { useAuth } from '@/context/auth/AuthContext';
 import { sendKylrixEmailNotification } from '@/lib/email-notifications';
 import type {
   Task,
@@ -542,36 +543,38 @@ interface TaskProviderProps {
 }
 
 export function TaskProvider({ children }: TaskProviderProps) {
+  const { user: authUser } = useAuth();
   const [state, dispatch] = useReducer(taskReducer, initialState);
   const { fetchOptimized, invalidate } = useDataNexus();
   const fetchRevisionRef = useRef(0);
 
   // Keep session state in sync with the shared current-user cache.
   useEffect(() => {
-    let mounted = true;
+    const nextUserId = authUser?.$id || getCurrentUserSnapshot()?.$id || 'guest';
+    dispatch({ type: 'SET_USER', payload: nextUserId });
 
-    const syncUser = (user: any | null) => {
-      if (!mounted) return;
+    const unsubscribe = onCurrentUserChanged((user) => {
       dispatch({ type: 'SET_USER', payload: user?.$id || 'guest' });
-    };
+    });
 
-    syncUser(getCurrentUserSnapshot());
-
-    const unsubscribe = onCurrentUserChanged(syncUser);
     return () => {
-      mounted = false;
       unsubscribe();
     };
-  }, []);
+  }, [authUser?.$id]);
 
   // Initial Data Fetch
   useEffect(() => {
-    const userId = state.userId || 'guest';
     const revision = ++fetchRevisionRef.current;
 
     const fetchData = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
+
+        const directUser = authUser?.$id ? authUser : getCurrentUserSnapshot() ?? await getCurrentUser(true);
+        const userId = directUser?.$id || state.userId || 'guest';
+        if (userId !== state.userId) {
+          dispatch({ type: 'SET_USER', payload: userId });
+        }
 
         const [tasksList, calendarsList] = await Promise.all([
           fetchOptimized(`f_tasks_${userId}`, () => taskApi.list([
@@ -599,7 +602,7 @@ export function TaskProvider({ children }: TaskProviderProps) {
     };
 
     void fetchData();
-  }, [fetchOptimized, state.userId]);
+  }, [authUser?.$id, fetchOptimized, state.userId]);
 
   // Realtime Subscriptions
   useEffect(() => {

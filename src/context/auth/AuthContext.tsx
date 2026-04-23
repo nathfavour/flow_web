@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { APP_CONFIG } from '@/lib/constants';
-import { getCurrentUser, getCurrentUserSnapshot, invalidateCurrentUserCache } from '@/lib/appwrite/client';
+import { getCurrentUser, getCurrentUserSnapshot, invalidateCurrentUserCache, onCurrentUserChanged } from '@/lib/appwrite/client';
 import Logo from '@/components/common/Logo';
 
 interface AuthState {
@@ -197,6 +197,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     checkSession();
   }, [checkSession]);
+
+  useEffect(() => {
+    const unsubscribe = onCurrentUserChanged((nextUser) => {
+      if (nextUser?.$id) {
+        setUser(nextUser);
+        setShowAuthOverlay(false);
+        setIsLoading(false);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   // Listen for postMessage from IDM window
   useEffect(() => {
