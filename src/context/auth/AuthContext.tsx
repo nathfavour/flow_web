@@ -42,7 +42,6 @@ const isMobile = () => {
 // Routes that don't require authentication (public routes)
 // These are pages that can be viewed without logging in
 const PUBLIC_ROUTES: (string | RegExp)[] = [
-  '/',                    // Landing page (redirects to dashboard, but should load first)
   '/events',              // Browse public events - discovery page
   /^\/events\/[^/]+$/,    // /events/[eventId] - individual event pages
 ];
